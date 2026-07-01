@@ -1,0 +1,16 @@
+node_modules/
+poc/node_modules/
+poc/dist/
+dist/
+*.log
+.DS_Store
+.vercel
+
+# โปรเจคอื่น / data ใหญ่ ที่ไม่เกี่ยวกับ PoC สิทธิ์
+multi-hop-reasoning/
+data/
+obsidian-poc/
+*.zip
+
+# CI workflow ต้องใช้ token scope 'workflow' — deploy ผ่าน gh-pages branch แทน
+.github/

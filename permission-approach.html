@@ -1,0 +1,350 @@
+<title>ปราญช์ — แนวทางระบบสิทธิ์ (Permission)</title>
+<style>
+  :root{
+    --ground:#ECEFEE; --surface:#fff; --ink:#16202B; --muted:#5C6B72; --muted2:#8A979C;
+    --border:#E0E5E4; --bstrong:#C7D0CF;
+    --teal:#0E7C86; --teal-dk:#0A5C64; --teal-soft:#E2F0F0;
+    --good:#15803D; --good-soft:#E6F2EA; --deny:#B0202B; --deny-soft:#F7E7E8;
+    --warn:#B45309; --warn-soft:#FBEFDF;
+    --t0:#64748B; --t1:#B45309; --t2:#C2410C; --t3:#A21824;
+    --ink2:#13202A;
+    --shadow:0 1px 2px rgba(22,32,43,.05),0 10px 30px rgba(22,32,43,.07);
+    --font:"Sarabun","Noto Sans Thai","IBM Plex Sans Thai",-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font);line-height:1.6;
+    -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 20px 70px}
+  .eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--teal-dk);font-weight:800}
+  h2.sec{font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:var(--teal-dk);font-weight:800;margin:34px 0 12px;display:flex;align-items:center;gap:10px}
+  h2.sec::after{content:"";flex:1;height:1px;background:var(--border)}
+
+  header.hero{background:var(--ink2);color:#EAF1F1;border-radius:18px;padding:30px 32px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+  header.hero::after{content:"";position:absolute;right:-60px;top:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(14,124,134,.4),transparent 70%)}
+  header.hero h1{margin:.25em 0 .2em;font-size:30px;font-weight:800;letter-spacing:-.015em}
+  header.hero p{margin:0;color:#A9BEC0;font-size:15px;max-width:64ch}
+  header .eyebrow{color:#6FD0D6}
+
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+  .card h3{margin:0 0 6px;font-size:15.5px;font-weight:800}
+  .card p{margin:0;font-size:13.5px;color:var(--muted)}
+  .card .ic{font-size:20px;margin-bottom:8px;display:block}
+
+  /* binding diagram */
+  .diagram{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:var(--shadow)}
+  .bind{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:6px}
+  @media(max-width:680px){.bind{grid-template-columns:1fr}}
+  .node{border:1px solid var(--border);border-radius:11px;padding:13px 14px;background:#FCFDFD}
+  .node b{font-size:14px}.node small{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
+  .arrowdown{text-align:center;color:var(--teal);font-size:18px;margin:8px 0 2px}
+  .result{margin-top:10px;background:var(--teal-soft);border:1px solid #CDE6E6;border-radius:11px;padding:13px 15px;font-size:13.5px;color:var(--teal-dk)}
+  .rule{margin-top:14px;background:#F6F8F8;border:1px solid var(--border);border-radius:11px;padding:14px 16px;font-size:14px}
+  .rule code{background:#fff;border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
+  .rule .and{color:var(--teal-dk);font-weight:800}
+
+  /* flow diagram */
+  .flow{display:flex;flex-direction:column;align-items:center}
+  .fnode{border:1px solid var(--border);border-radius:11px;padding:12px 18px;text-align:center;background:#FCFDFD;font-size:14px}
+  .fnode small{color:var(--muted);font-weight:400}
+  .fnode.user{background:var(--ink2);color:#EAF1F1;border-color:var(--ink2);font-weight:800;font-size:15px;padding:13px 26px}
+  .fnode.user small{color:#9FB8BB}
+  .conn{width:2px;height:16px;background:var(--bstrong)}
+  .flabel{font-size:12px;color:var(--muted);font-weight:700;margin:4px 0}
+  .forkbar{width:72%;max-width:560px;height:2px;background:var(--bstrong)}
+  .frow3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-top:0}
+  @media(max-width:680px){.frow3{grid-template-columns:1fr}}
+  .fcard{border:1px solid var(--border);border-radius:11px;padding:12px 13px 13px;background:var(--surface);text-align:center;position:relative}
+  .fcard .ftick{color:var(--teal);font-size:13px;margin-bottom:4px}
+  .fcard b{font-size:13.5px;display:block;margin-bottom:5px}
+  .fcard span{font-size:12.5px;color:var(--muted);line-height:1.5}
+  .fcard em{color:var(--teal-dk);font-style:normal;font-weight:700}
+  .mergebar{width:72%;max-width:560px;height:2px;background:var(--bstrong);margin-top:12px}
+  .fnode.eff{background:var(--teal-soft);border-color:#CDE6E6;color:var(--teal-dk);text-align:left;padding:14px 18px;max-width:520px;width:100%}
+  .fnode.eff .calc{font-size:11px;background:#fff;border:1px solid #CDE6E6;border-radius:6px;padding:1px 8px;margin-left:6px;font-weight:700}
+  .fnode.eff ul{margin:9px 0 0;padding-left:18px}
+  .fnode.eff li{font-size:13px;margin:2px 0}
+  .fnode.eff code{background:#fff;border:1px solid #CDE6E6;border-radius:5px;padding:1px 6px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+
+  .vs{text-align:center;font-size:12px;font-weight:800;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin:20px 0 12px;position:relative}
+  .docflow{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+  .fnode.doc{background:var(--ink2);color:#EAF1F1;border-color:var(--ink2);font-weight:800}
+  .docaxes{display:flex;gap:10px;flex-wrap:wrap}
+  .axis{border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:13.5px;background:#FCFDFD}
+  .axis .axk{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--teal-soft);color:var(--teal-dk);border:1px solid #CDE6E6;border-radius:5px;padding:1px 7px;margin-right:7px}
+
+  /* binding table */
+  .tablecard{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  table.bindtbl{width:100%;border-collapse:collapse;font-size:14px}
+  table.bindtbl th{text-align:left;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);font-weight:800;padding:13px 16px;background:#FAFCFC;border-bottom:1px solid var(--border)}
+  table.bindtbl td{padding:12px 16px;border-top:1px solid var(--border);vertical-align:top}
+  table.bindtbl td:first-child{white-space:nowrap;color:var(--teal-dk)}
+  table.bindtbl td:nth-child(2){color:var(--ink)}
+  table.bindtbl td:last-child{color:var(--muted)}
+  table.bindtbl tr:hover td{background:#FAFCFC}
+
+  /* simulator */
+  .sim{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  .simtop{padding:16px 18px;border-bottom:1px solid var(--border);background:#FAFCFC}
+  .lbl{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);font-weight:800;margin-bottom:8px;display:block}
+  .who{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{border:1px solid var(--bstrong);background:#fff;color:var(--ink);border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;font-family:var(--font);font-weight:600}
+  .chip:hover{border-color:var(--teal);color:var(--teal-dk)}
+  .chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
+  .simbody{display:grid;grid-template-columns:230px 1fr;gap:0}
+  @media(max-width:760px){.simbody{grid-template-columns:1fr}}
+  .simside{padding:16px 18px;border-right:1px solid var(--border);background:#FCFDFD}
+  @media(max-width:760px){.simside{border-right:0;border-bottom:1px solid var(--border)}}
+  .attr{font-size:13px;margin-bottom:9px}.attr .k{color:var(--muted);display:block;font-size:11.5px}
+  .dom{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:#EEF3F3;color:#3A4A50;border:1px solid var(--border);margin:2px 3px 0 0;display:inline-block}
+  .colpick{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .colpick button{flex:1;min-width:120px;border:1px solid var(--bstrong);background:#fff;border-radius:9px;padding:8px;font-family:var(--font);font-size:12.5px;cursor:pointer;font-weight:600;text-align:left}
+  .colpick button.on{border-color:var(--teal);background:var(--teal-soft);color:var(--teal-dk)}
+  .colpick .rs{font-size:10px;color:var(--deny);font-weight:700}
+
+  .tree{padding:14px 18px}
+  .scopebar{font-size:12.5px;margin-bottom:10px;padding:8px 11px;border-radius:9px}
+  .scopebar.in{background:var(--good-soft);color:var(--good)}
+  .scopebar.out{background:var(--deny-soft);color:var(--deny)}
+  .trow{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;font-size:13.5px}
+  .trow.folder{font-weight:700}
+  .tic{width:18px;text-align:center}
+  .tname{flex:1;display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+  .tdot{width:9px;height:9px;border-radius:3px;display:inline-block;flex:none}
+  .tier{font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:6px}
+  .floor{font-size:10px;font-weight:700;background:var(--warn-soft);color:var(--warn);border:1px solid #F0DDC2;border-radius:6px;padding:1px 7px}
+  .ovr{font-size:10px;font-weight:700;background:var(--teal-soft);color:var(--teal-dk);border:1px solid #CDE6E6;border-radius:6px;padding:1px 7px}
+  .inh{font-size:10px;color:var(--warn);font-weight:700}
+  .vd{font-size:11px;font-weight:800;padding:2px 9px;border-radius:7px;white-space:nowrap}
+  .vd.ok{background:var(--good-soft);color:var(--good)}
+  .vd.no{background:var(--deny-soft);color:var(--deny)}
+  .vreason{font-size:10.5px;color:var(--muted2);width:118px;text-align:right}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;padding:10px 18px 16px;font-size:11.5px;color:var(--muted)}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:middle}
+
+  ul.dec{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+  ul.dec li{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 15px;font-size:13.5px;box-shadow:var(--shadow)}
+  ul.dec li b{color:var(--ink)}
+  footer{margin-top:30px;font-size:12px;color:var(--muted2);text-align:center}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">ปราญช์ · แนวทางระบบสิทธิ์</div>
+    <h1>สิทธิ์เข้าถึงข้อมูล — ผูกกับ "ตำแหน่ง" ไม่ใช่ "ตัวบุคคล"</h1>
+    <p>โมเดล ABAC 2 แกน (Domain × ชั้นความลับ) + exception ระดับโฟลเดอร์ + inherit ใน tree. เป้าหมาย: แอดมินจัดการง่าย, รองรับโยกย้ายราชการ (ต.ค.) โดยไม่ต้องตั้งสิทธิ์ใหม่ทุกครั้ง.</p>
+  </header>
+
+  <h2 class="sec">หลักการ — อะไรผูกกับอะไร</h2>
+  <div class="diagram">
+    <div class="flow">
+      <div class="fnode user">👤 USER <small>เช่น นาย A</small></div>
+      <div class="conn"></div>
+      <div class="flabel">ผูก 3 อย่าง</div>
+      <div class="forkbar"></div>
+      <div class="frow3">
+        <div class="fcard"><div class="ftick">▼</div><b>Unit / กอง</b><span>ให้ <em>domain</em><br>(HR, ทั่วไป)</span></div>
+        <div class="fcard"><div class="ftick">▼</div><b>Role / ตำแหน่ง</b><span>ให้ <em>clearance</em> (ชั้น)<br>+ <em>features</em> (View/Chat/Edit/Connector)</span></div>
+        <div class="fcard"><div class="ftick">▼</div><b>Groups (0..n)</b><span>ให้ <em>domain</em> เพิ่ม<br>(cross-cut เช่น คกก.งบ→การเงิน)</span></div>
+      </div>
+      <div class="mergebar"></div>
+      <div class="conn"></div>
+      <div class="fnode eff">
+        <b>สิทธิ์ที่มีผลจริง</b> <span class="calc">คำนวณ — ไม่เก็บ</span>
+        <ul><li><code>domains</code> = กอง ∪ กลุ่ม</li><li><code>clearance</code> = ตำแหน่ง</li><li><code>features</code> = ตำแหน่ง</li></ul>
+      </div>
+    </div>
+
+    <div class="vs">อีกฝั่ง — เอกสาร / Collection</div>
+    <div class="docflow">
+      <div class="fnode doc">📄 DOCUMENT</div>
+      <div class="docaxes">
+        <div class="axis"><span class="axk">domain</span> 1 อัน เช่น <b>HR</b></div>
+        <div class="axis"><span class="axk">tier</span> 1 ชั้น เช่น <b>ลับ</b></div>
+      </div>
+    </div>
+
+    <div class="rule">
+      เห็นเอกสารได้เมื่อครบ 3 เงื่อนไข:
+      <span style="margin-top:6px;display:inline-block">
+        <code>domain เอกสาร ∈ domain ของ user</code> <span class="and">และ</span>
+        <code>clearance ≥ ชั้นเอกสาร</code> <span class="and">และ</span>
+        <code>มีสิทธิ์ฟีเจอร์</code>
+      </span>
+    </div>
+  </div>
+
+  <h2 class="sec">สรุป — อะไรผูกกับอะไร (ตาราง)</h2>
+  <div class="tablecard">
+    <table class="bindtbl">
+      <thead><tr><th>สิ่งนี้</th><th>ผูกกับ</th><th>ได้อะไร</th></tr></thead>
+      <tbody>
+        <tr><td><b>User</b></td><td>Unit (1) + Role (1) + Groups (n) + ชั่วคราว (optional)</td><td>รวมจาก 3 อันล่าง (ไม่ผูกสิทธิ์ตรงๆ)</td></tr>
+        <tr><td><b>Unit / กอง</b></td><td>Domains (n)</td><td>กองนี้แตะ domain อะไรได้</td></tr>
+        <tr><td><b>Group / กลุ่มย่อย</b></td><td>Domains (n)</td><td>grant domain เพิ่มแบบข้ามกอง</td></tr>
+        <tr><td><b>Role / ตำแหน่ง</b></td><td>Clearance (1 ชั้น) + Features (n)</td><td>เห็นได้ถึงชั้นไหน + ทำ action อะไร (View/Chat/Edit/Connector/<b>สร้าง Collection</b>)</td></tr>
+        <tr><td><b>Document / File</b></td><td>Domain (1) + Tier (1)</td><td>เอกสารต้องการสิทธิ์อะไร</td></tr>
+        <tr><td><b>Folder (ใน tree)</b></td><td>Tier floor + Access override (optional)</td><td>inherit ลงลูก — ยกชั้น/จำกัดเฉพาะกลุ่ม-คน</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">5 แนวคิดหลัก</h2>
+  <div class="cards">
+    <div class="card"><span class="ic">🏛️</span><h3>ผูกกับตำแหน่ง</h3><p>โยกย้าย/เลื่อนระดับ ต.ค. → แก้แค่ตำแหน่ง/กอง สิทธิ์ปรับทั้งหมดอัตโนมัติ</p></div>
+    <div class="card"><span class="ic">⊞</span><h3>2 แกน (AND)</h3><p>Domain (เรื่อง) × ชั้นความลับ — ต้องผ่านทั้งคู่ ขาดอย่างใดอย่างหนึ่งคือไม่เห็น</p></div>
+    <div class="card"><span class="ic">🧩</span><h3>กลุ่มย่อย</h3><p>grant domain เพิ่มข้ามกอง เช่น คกก.ความมั่นคง เห็นข้อมูลวิศวกรรม</p></div>
+    <div class="card"><span class="ic">🌲</span><h3>Tree + Inherit</h3><p>collection = โฟลเดอร์+ไฟล์ ซ้อนกัน — ชั้นความลับไหลลง (โฟลเดอร์ลับ→ไฟล์ลับ)</p></div>
+    <div class="card"><span class="ic">🔐</span><h3>Exception เฉพาะกลุ่ม/คน</h3><p>ตั้งที่โฟลเดอร์ได้ — เฉพาะคนที่กำหนด (แม้ผู้บริหารสูงสุดก็ถูกกันได้)</p></div>
+    <div class="card"><span class="ic">⏱️</span><h3>ตำแหน่งชั่วคราว</h3><p>ช่วยราชการ = เปิดสิทธิ์ชั่วคราว มีวันหมดอายุ</p></div>
+  </div>
+
+  <h2 class="sec">ใครสร้าง Collection ได้ — และระดับไหน</h2>
+  <div class="cards">
+    <div class="card"><span class="ic">👥</span><h3>ใครสร้างได้</h3><p>role ที่มีสิทธิ์ <b>“จัดการ Collection”</b> — default ผู้จัดการขึ้นไป (เจ้าหน้าที่สร้างไม่ได้)</p></div>
+    <div class="card"><span class="ic">🗂️</span><h3>เพดาน Domain</h3><p>สร้างได้เฉพาะ domain ที่ตัวเองเข้าถึง — ผจก.HR สร้าง <b>HR</b> ได้, <b>การเงินไม่ได้</b></p></div>
+    <div class="card"><span class="ic">🎚️</span><h3>เพดานชั้นความลับ</h3><p>ตั้งชั้นได้ <b>ไม่เกิน clearance ตัวเอง</b> — clearance ลับ → ตั้งได้ถึงลับ ไม่ถึงลับที่สุด</p></div>
+  </div>
+  <div class="rule" style="margin-top:12px">
+    <code>สร้างได้ ⟺ มีสิทธิ์ ManageCollection</code> <span class="and">และ</span>
+    <code>domain ∈ สิทธิ์ตัวเอง</code> <span class="and">และ</span>
+    <code>ชั้นที่ตั้ง ≤ clearance</code>
+    <br><span style="font-size:12.5px;color:var(--muted);margin-top:6px;display:inline-block">ผู้สร้าง = owner · สร้างซ้อนได้ถ้าชั้นลูก ≥ floor แม่ · ผู้บริหาร/ทีมกลางข้าม domain+ทุกชั้นได้</span>
+  </div>
+
+  <h2 class="sec">ลองเล่น — เลือกคน แล้วดูว่าเห็นอะไร</h2>
+  <div class="sim">
+    <div class="simtop">
+      <span class="lbl">เลือกผู้ใช้</span>
+      <div class="who" id="who"></div>
+    </div>
+    <div class="simbody">
+      <div class="simside">
+        <span class="lbl">สิทธิ์ที่มีผลจริง</span>
+        <div id="attrs"></div>
+        <span class="lbl" style="margin-top:14px">เลือก Collection</span>
+        <div class="colpick" id="colpick"></div>
+      </div>
+      <div>
+        <div class="tree" id="tree"></div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--t0)"></i>ทั่วไป</span>
+      <span><i style="background:var(--t1)"></i>ลับ</span>
+      <span><i style="background:var(--t2)"></i>ลับมาก</span>
+      <span><i style="background:var(--t3)"></i>ลับที่สุด</span>
+      <span>· ↑ = ยกชั้นจากโฟลเดอร์แม่ · 🔐 = override เฉพาะกลุ่ม/คน</span>
+    </div>
+  </div>
+
+  <h2 class="sec">ประเด็นที่ต้องเคาะในที่ประชุม</h2>
+  <ul class="dec">
+    <li><b>1. Clearance มาจากไหน</b> — ผูก "ระดับตำแหน่ง" แบบ global หรือ <b>per-domain</b> (เป็น ผจก. กอง HR ไม่ควรเห็นลับของกองการเงิน)? — แนะ per-domain</li>
+    <li><b>2. รักษาการ vs ช่วยราชการ</b> — ต่างกันไหม? ต้อง delegation แบบ time-boxed + audit</li>
+    <li><b>3. Break-glass</b> — เข้าถึง "ลับที่สุด" ฉุกเฉิน → log พิเศษ + แจ้งเจ้าของ</li>
+    <li><b>4. เอกสารข้ามกอง</b> — ติดหลาย domain → ใช้ most-restrictive?</li>
+    <li><b>5. Sync ผังองค์กร</b> — ดึงจาก HR/AD แบบ real-time หรือ batch? ช่วงเปลี่ยนผ่านจัดการยังไง</li>
+    <li><b>6. ชั้นความลับ</b> — ใช้มาตรฐาน 3 ชั้น (ลับ/ลับมาก/ลับที่สุด) + ทั่วไป ตรงกับ กปน. ไหม หรือมี label ภายในเพิ่ม</li>
+  </ul>
+
+  <footer>ปราญช์ (Pranch) by Maholan · PoC แนวทางระบบสิทธิ์ — interactive demo</footer>
+</div>
+
+<script>
+const TIERS=[{n:"ทั่วไป",c:"#64748B"},{n:"ลับ",c:"#B45309"},{n:"ลับมาก",c:"#C2410C"},{n:"ลับที่สุด",c:"#A21824"}];
+const td=t=>`<span class="tdot" style="background:${TIERS[t].c}"></span>`;
+const tierTag=t=>`<span class="tier" style="background:${TIERS[t].c}1A;color:${TIERS[t].c}">${td(t)}${TIERS[t].n}</span>`;
+
+// users (effective attrs baked)
+const USERS=[
+  {id:"u1",label:"สมชาย · จนท. HR",role:"เจ้าหน้าที่",domains:["ทั่วไป","HR"],clr:0,groups:["g-hr"]},
+  {id:"u2",label:"วราภรณ์ · ผจก. HR",role:"ผู้จัดการ",domains:["ทั่วไป","HR"],clr:1,groups:["g-hr"]},
+  {id:"u3",label:"ธนกร · ผอ.การเงิน",role:"ผู้อำนวยการ",domains:["ทั่วไป","การเงิน"],clr:2,groups:["g-budget"]},
+  {id:"u4",label:"ปิยะ · ผจก.วิศวฯ +คกก.มั่นคง",role:"ผู้จัดการ",domains:["ทั่วไป","วิศวกรรม"],clr:1,groups:["g-sec"]},
+  {id:"u5",label:"อนุชา · ช่วยราชการ HR (ชั่วคราว)",role:"ผู้จัดการ (ชั่วคราว)",domains:["ทั่วไป","HR"],clr:1,groups:[],temp:true},
+  {id:"u6",label:"กิตติ · ผู้ว่าการ",role:"ผู้บริหารสูงสุด",domains:["ทั่วไป","HR","การเงิน","วิศวกรรม","บริหาร"],clr:3,groups:[]},
+];
+
+// collections as trees
+const COLS=[
+  {id:"hr",name:"กอง HR",domain:"HR",root:{kind:"folder",name:"HR",access:{mode:"domain",groups:[],users:[]},children:[
+    {kind:"folder",name:"เอกสารทั่วไป",children:[
+      {kind:"file",name:"คู่มือปฏิบัติงาน HR",tier:0},
+      {kind:"file",name:"ประกาศวันหยุด 2569",tier:0},
+    ]},
+    {kind:"folder",name:"ค่าตอบแทน",floor:1,children:[
+      {kind:"file",name:"บัญชีเงินเดือน 2569",tier:1},
+      {kind:"file",name:"กรอบอัตรากำลัง",tier:0},
+    ]},
+    {kind:"folder",name:"วินัย (เฉพาะ ผจก.HR)",access:{mode:"restricted",groups:[],users:["u2"]},children:[
+      {kind:"file",name:"ผลสอบวินัย/คำสั่งลงโทษ",tier:1},
+    ]},
+  ]}},
+  {id:"eng",name:"วิศวฯ (ลับ)",domain:"วิศวกรรม",restrictedNote:"เฉพาะ คกก.มั่นคง",root:{kind:"folder",name:"วิศวกรรม",access:{mode:"restricted",groups:["g-sec"],users:[]},children:[
+    {kind:"file",name:"แผนความมั่นคงระบบประปา",tier:3},
+    {kind:"file",name:"คู่มือซ่อมบำรุงท่อส่งน้ำ",tier:0},
+  ]}},
+];
+
+let selU="u1", selC="hr";
+
+function scope(u,access,domain){
+  const dm=u.domains.includes(domain);
+  const ex=u.groups.some(g=>access.groups.includes(g))||access.users.includes(u.id);
+  const inScope=access.mode==="restricted"?ex:(dm||ex);
+  const reason=access.mode==="restricted"?(ex?"อยู่ใน allow-list":"นอก allow-list"):(dm?"มีสิทธิ์ domain":ex?"exception":"ไม่มีสิทธิ์ domain");
+  return {inScope,reason};
+}
+
+function render(){
+  const u=USERS.find(x=>x.id===selU), col=COLS.find(x=>x.id===selC);
+  // chips
+  document.getElementById("who").innerHTML=USERS.map(x=>`<button class="chip ${x.id===selU?'on':''}" data-u="${x.id}">${x.label}</button>`).join("");
+  // attrs
+  document.getElementById("attrs").innerHTML=`
+    <div class="attr"><span class="k">ตำแหน่ง</span><b>${u.role}</b></div>
+    <div class="attr"><span class="k">Clearance สูงสุด</span>${tierTag(u.clr)}</div>
+    <div class="attr"><span class="k">เข้าถึง Domain</span>${u.domains.map(d=>`<span class="dom">${d}</span>`).join("")}</div>`;
+  // collection picker
+  document.getElementById("colpick").innerHTML=COLS.map(c=>`<button class="${c.id===selC?'on':''}" data-c="${c.id}">${c.name}<br><span class="muted" style="font-size:11px">domain: ${c.domain}</span>${c.restrictedNote?`<br><span class="rs">🔐 ${c.restrictedNote}</span>`:''}</button>`).join("");
+
+  // root scope bar
+  const rs=scope(u,col.root.access,col.domain);
+  let html=`<div class="scopebar ${rs.inScope?'in':'out'}">${rs.inScope?'✓ เข้าถึง collection นี้ได้':'✕ เข้าไม่ได้'} — ${rs.reason}</div>`;
+
+  // walk tree
+  const walk=(node,depth,access,floor)=>{
+    const pad=`style="padding-left:${8+depth*20}px"`;
+    if(node.kind==="file"){
+      const eff=Math.max(node.tier,floor);
+      const s=scope(u,access,col.domain);
+      const tierOk=u.clr>=eff;
+      const allow=s.inScope&&tierOk;
+      const reason=!s.inScope?s.reason:!tierOk?`clearance < ${TIERS[eff].n}`:"ผ่าน";
+      html+=`<div class="trow" ${pad}><span class="tic">📄</span>
+        <span class="tname">${node.name} ${tierTag(eff)} ${eff!==node.tier?'<span class="inh">↑ inherit</span>':''}</span>
+        <span class="vreason">${reason}</span>
+        <span class="vd ${allow?'ok':'no'}">${allow?'เห็น':'ไม่เห็น'}</span></div>`;
+      return;
+    }
+    const acc=node.access||access;
+    const fl=Math.max(floor,node.floor??0);
+    if(depth>=0&&node!==col.root){
+      html+=`<div class="trow folder" ${pad}><span class="tic">📁</span>
+        <span class="tname">${node.name} ${node.floor!=null?`<span class="floor">floor: ${TIERS[node.floor].n}</span>`:''} ${node.access?`<span class="ovr">🔐 ${node.access.mode==='restricted'?'restricted':'exception'}</span>`:''}</span>
+        <span class="vreason"></span><span class="vd" style="visibility:hidden">x</span></div>`;
+    }
+    node.children.forEach(c=>walk(c,depth+1,acc,fl));
+  };
+  walk(col.root,-1,col.root.access,0);
+  document.getElementById("tree").innerHTML=html;
+}
+
+document.addEventListener("click",e=>{
+  const u=e.target.closest("[data-u]"); if(u){selU=u.dataset.u;render();return;}
+  const c=e.target.closest("[data-c]"); if(c){selC=c.dataset.c;render();return;}
+});
+render();
+</script>

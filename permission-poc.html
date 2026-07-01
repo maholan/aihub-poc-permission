@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ปราญช์ — Collection Config (สิทธิ์)</title>
+<style>
+  :root{
+    --ground:#EAEEED; --surface:#FFFFFF; --ink:#16202B; --muted:#5C6B72; --muted2:#8A979C;
+    --border:#E1E6E5; --border-strong:#C9D2D1;
+    --teal:#0E7C86; --teal-dark:#0A5C64; --teal-soft:#E2F0F0;
+    --good:#15803D; --good-soft:#E6F2EA; --deny:#B0202B; --deny-soft:#F7E7E8;
+    --t0:#64748B; --t1:#B45309; --t2:#C2410C; --t3:#A21824;
+    --side:#13202A; --side-soft:#1D2E39;
+    --shadow:0 1px 2px rgba(22,32,43,.05),0 8px 24px rgba(22,32,43,.06);
+    --font:"Sarabun","Noto Sans Thai","IBM Plex Sans Thai",-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--ground);color:var(--ink);font-family:var(--font);line-height:1.5;
+    -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+  .app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+  @media(max-width:820px){.app{grid-template-columns:1fr}.side{display:none}}
+
+  /* sidebar */
+  .side{background:var(--side);color:#C7D3D6;padding:18px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 10px 16px}
+  .brand .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--teal),#13A3AE);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:16px}
+  .brand b{color:#fff;font-size:17px;letter-spacing:-.01em}
+  .brand small{display:block;color:#6E848C;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+  .nav{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+  .nav a{display:flex;align-items:center;gap:11px;color:#9FB0B5;text-decoration:none;padding:9px 11px;border-radius:9px;font-size:14px;cursor:pointer}
+  .nav a .i{width:18px;text-align:center;opacity:.9}
+  .nav a:hover{background:var(--side-soft);color:#E6EEEF}
+  .nav a.on{background:var(--teal);color:#fff;font-weight:600}
+  .nav .grp{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#5C7178;padding:14px 11px 5px}
+  .side .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;border-top:1px solid #25333D}
+  .side .me .av{width:30px;height:30px;border-radius:50%;background:#2E4350;color:#CFE0E2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+  .side .me small{color:#7E929A;font-size:11px;display:block}
+
+  /* topbar */
+  .main{display:flex;flex-direction:column;min-width:0}
+  .top{display:flex;align-items:center;gap:14px;padding:13px 24px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+  .ws{display:flex;align-items:center;gap:8px;border:1px solid var(--border-strong);border-radius:9px;padding:6px 11px;font-size:13.5px;font-weight:600;cursor:pointer}
+  .ws .dot{width:8px;height:8px;border-radius:50%;background:var(--teal)}
+  .search{flex:1;max-width:440px;display:flex;align-items:center;gap:8px;background:#F4F7F6;border:1px solid var(--border);border-radius:9px;padding:7px 12px;color:var(--muted2);font-size:13.5px}
+  .top .spacer{flex:1}
+  .btn{background:var(--teal);color:#fff;border:0;border-radius:9px;padding:8px 15px;font-size:13.5px;font-weight:700;font-family:var(--font);cursor:pointer}
+  .btn:hover{background:var(--teal-dark)}
+  .uav{width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+
+  /* content */
+  .content{padding:22px 24px 60px;max-width:1180px;width:100%}
+  .crumb{font-size:12.5px;color:var(--muted2)}
+  .crumb b{color:var(--muted)}
+  .phead{display:flex;align-items:flex-start;gap:14px;margin:6px 0 4px}
+  .phead h1{margin:0;font-size:23px;font-weight:800;letter-spacing:-.01em}
+  .badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:7px;background:var(--teal-soft);color:var(--teal-dark);border:1px solid #CDE6E6}
+  .pmeta{color:var(--muted);font-size:13px;margin:0 0 14px}
+
+  /* tabs */
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:18px}
+  .tabs button{border:0;background:none;font-family:var(--font);font-size:14.5px;color:var(--muted);
+    padding:11px 15px;cursor:pointer;border-bottom:2.5px solid transparent;font-weight:600;margin-bottom:-1px}
+  .tabs button:hover{color:var(--ink)}
+  .tabs button.on{color:var(--teal-dark);border-bottom-color:var(--teal)}
+  .tabs button:focus-visible{outline:2px solid var(--teal);outline-offset:-4px;border-radius:6px}
+  .panel{display:none}
+  .panel.on{display:block}
+
+  .eyebrow{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-dark);font-weight:800}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+  .h3{margin:0 0 3px;font-size:15.5px;font-weight:800}
+  .sub{font-size:12.5px;color:var(--muted);margin:0 0 14px}
+
+  /* documents table */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead th{text-align:left;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);font-weight:700;padding:0 12px 9px}
+  tbody td{padding:12px;border-top:1px solid var(--border);vertical-align:middle}
+  tbody tr:hover{background:#FAFCFC}
+  .docname{font-weight:600}
+  .doctype{font-size:12px;color:var(--muted2)}
+  .tierpick{display:inline-flex;align-items:center;gap:7px}
+  .tierpick select{font-family:var(--font);font-size:13px;border:1px solid var(--border-strong);border-radius:8px;padding:5px 8px;background:#fff;color:var(--ink)}
+  .tierdot{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
+  .pill{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:7px}
+  .pill.ready{background:var(--good-soft);color:var(--good)}
+
+  /* permissions layout */
+  .pgrid{display:grid;grid-template-columns:1.15fr 1fr;gap:16px}
+  @media(max-width:900px){.pgrid{grid-template-columns:1fr}}
+
+  /* clearance matrix */
+  .matrix{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px}
+  .matrix th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted2);text-align:center;padding:0 6px 8px;font-weight:700}
+  .matrix th:first-child{text-align:left}
+  .matrix td{padding:9px 6px;border-top:1px solid var(--border);text-align:center}
+  .matrix td:first-child{text-align:left;font-weight:600}
+  .matrix .clr{font-size:12px;font-weight:700;padding:2px 9px;border-radius:7px;display:inline-flex;align-items:center;gap:6px}
+  .yes{color:var(--good);font-weight:800}
+  .no{color:var(--muted2)}
+  .grp-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .grant{font-size:12.5px;padding:4px 10px;border-radius:8px;background:var(--teal-soft);color:var(--teal-dark);border:1px solid #CDE6E6;font-weight:600}
+  .grant.add{background:#fff;border:1px dashed var(--border-strong);color:var(--muted);cursor:pointer}
+
+  /* simulator */
+  .simhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .who{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{border:1px solid var(--border-strong);background:#fff;color:var(--ink);border-radius:999px;padding:6px 13px;font-size:13px;font-family:var(--font);cursor:pointer;font-weight:600}
+  .chip:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
+  .whoinfo{font-size:12.5px;color:var(--muted);margin:2px 0 12px}
+  .whoinfo b{color:var(--ink)}
+  .whoinfo .gt{display:inline-block;background:#F4F7F6;border:1px solid var(--border);border-radius:6px;padding:1px 7px;margin-left:4px;font-size:11.5px}
+
+  .srow{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--border);border-radius:10px;margin-bottom:7px;background:#FCFDFD}
+  .srow.allow{border-left:4px solid var(--good)}
+  .srow.deny{border-left:4px solid var(--deny);background:#FCFAFA}
+  .srow .nm{flex:1;font-size:13.5px;font-weight:600;min-width:0}
+  .srow .tg{font-size:10.5px;color:var(--muted2)}
+  .vd{font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:7px;white-space:nowrap}
+  .vd.allow{background:var(--good-soft);color:var(--good)}
+  .vd.deny{background:var(--deny-soft);color:var(--deny)}
+  .conds{display:flex;gap:5px}
+  .cond{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px}
+  .cond.ok{background:var(--good-soft);color:var(--good)}
+  .cond.bad{background:var(--deny-soft);color:var(--deny)}
+  .aibox{margin-top:12px;background:#F4F7F6;border:1px solid var(--border);border-radius:11px;padding:12px 13px}
+  .aibox .q{font-size:12.5px;color:var(--muted);margin-bottom:8px}
+  .src{display:inline-block;font-size:10.5px;background:var(--teal-soft);color:var(--teal-dark);border:1px solid #CDE6E6;border-radius:6px;padding:1px 7px;margin:2px 4px 0 0;font-weight:700}
+  .route{font-size:11.5px;color:var(--muted);margin-top:9px;padding-top:9px;border-top:1px dashed var(--border)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--muted)}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:middle}
+
+  /* policies / chunk stubs */
+  .pol{display:flex;flex-direction:column;gap:14px}
+  .polrow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-top:1px solid var(--border)}
+  .polrow:first-child{border-top:0}
+  .polrow .lbl b{display:block;font-size:14px}
+  .polrow .lbl small{color:var(--muted);font-size:12.5px}
+  .toggle{width:44px;height:25px;border-radius:999px;background:var(--teal);position:relative;flex:none}
+  .toggle::after{content:"";position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:3px;right:3px}
+  .toggle.off{background:#C9D2D1}.toggle.off::after{right:auto;left:3px}
+  .stub-input{border:1px solid var(--border-strong);border-radius:8px;padding:6px 10px;font-family:var(--font);width:90px;text-align:right}
+  .chunk{font-size:13px;color:#3A4A50;border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:8px;background:#FCFDFD}
+  .chunk b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="brand"><span class="logo">ป</span><div><b>ปราญช์</b><small>Maholan</small></div></div>
+    <div class="nav">
+      <a><span class="i">◧</span> แดชบอร์ด</a>
+      <a class="on"><span class="i">▤</span> Collections</a>
+      <a><span class="i">⤓</span> นำเข้าเอกสาร</a>
+      <a><span class="i">⇄</span> Connectors</a>
+      <a><span class="i">◎</span> Search &amp; Chat</a>
+      <div class="grp">ผู้ดูแล</div>
+      <a><span class="i">⚇</span> ผู้ใช้ &amp; สิทธิ์</a>
+      <a><span class="i">◔</span> Monitoring</a>
+      <a><span class="i">⚙</span> ตั้งค่า</a>
+    </div>
+    <div class="me"><span class="av">AD</span><div><b style="color:#E6EEEF;font-size:13px">แอดมินระบบ</b><small>กปน. · Executive</small></div></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="top">
+      <div class="ws"><span class="dot"></span> กปน. (MWA) ▾</div>
+      <div class="search">🔍 ค้นหาเอกสารตามชื่อ/แท็ก…</div>
+      <div class="spacer"></div>
+      <button class="btn">+ นำเข้าเอกสาร</button>
+      <div class="uav">AD</div>
+    </div>
+
+    <div class="content">
+      <div class="crumb"><b>Collections</b> / กองทรัพยากรบุคคล (HR)</div>
+      <div class="phead">
+        <h1>กองทรัพยากรบุคคล (HR)</h1>
+        <span class="badge">Domain: HR</span>
+      </div>
+      <p class="pmeta">เอกสาร 5 ชิ้น · อัปเดตล่าสุด 24 มิ.ย. 2569 · เจ้าของ: กอง HR</p>
+
+      <div class="tabs">
+        <button data-tab="docs">เอกสาร</button>
+        <button data-tab="perm" class="on">สิทธิ์การเข้าถึง</button>
+        <button data-tab="chunk">Chunk Preview</button>
+        <button data-tab="policy">Policies</button>
+      </div>
+
+      <!-- DOCS TAB -->
+      <section class="panel" data-panel="docs">
+        <div class="card">
+          <div class="h3">เอกสารใน Collection</div>
+          <p class="sub">ตั้ง “ชั้นความลับ” ของแต่ละเอกสารได้ที่นี่ — มีผลต่อว่าใครเห็น (ดูแท็บสิทธิ์)</p>
+          <table>
+            <thead><tr><th>ชื่อเอกสาร</th><th>ประเภท</th><th>ชั้นความลับ</th><th>สถานะ</th></tr></thead>
+            <tbody id="docTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PERMISSIONS TAB -->
+      <section class="panel on" data-panel="perm">
+        <div class="pgrid">
+          <!-- policy -->
+          <div class="card">
+            <div class="eyebrow">นโยบายสิทธิ์</div>
+            <div class="h3" style="margin-top:5px">ใครเข้าถึง Collection นี้ได้</div>
+            <p class="sub">สิทธิ์ผูกกับ <b>ตำแหน่ง</b> ไม่ใช่รายบุคคล — โยกย้าย/เลื่อนระดับ ปรับเอง</p>
+            <table class="matrix">
+              <thead><tr><th>ระดับตำแหน่ง</th><th>เห็นได้ถึงชั้น</th><th>View</th><th>Chat</th><th>Edit</th><th>Connector</th></tr></thead>
+              <tbody id="matrix"></tbody>
+            </table>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:14px;font-weight:700">กลุ่มย่อย (Groups) — แชร์เฉพาะในกลุ่ม</div>
+            <div class="grp-row">
+              <span class="grant">กลุ่ม HR</span>
+              <span class="grant">กลุ่ม สรรหา-บรรจุ</span>
+              <span class="grant add">+ เพิ่มกลุ่ม</span>
+            </div>
+            <div class="legend">
+              <span><i style="background:var(--t0)"></i>ปกปิด</span>
+              <span><i style="background:var(--t1)"></i>ลับ</span>
+              <span><i style="background:var(--t2)"></i>ลับมาก</span>
+              <span><i style="background:var(--t3)"></i>ลับที่สุด</span>
+            </div>
+          </div>
+
+          <!-- simulator -->
+          <div class="card">
+            <div class="simhead">
+              <div><div class="eyebrow">ทดสอบสิทธิ์</div><div class="h3" style="margin-top:5px">ผู้ใช้นี้เห็นอะไรบ้าง</div></div>
+            </div>
+            <div class="who" id="who"></div>
+            <div class="whoinfo" id="whoinfo"></div>
+            <div id="simRows"></div>
+            <div class="aibox">
+              <div class="q">🔍 มุมมอง AI — ถาม: “ขอข้อมูลเงินเดือนและกรอบอัตรากำลัง”</div>
+              <div id="aiAnswer" style="font-size:13px"></div>
+              <div class="route" id="aiRoute"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CHUNK TAB -->
+      <section class="panel" data-panel="chunk">
+        <div class="card">
+          <div class="h3">ตัวอย่าง Chunk</div>
+          <p class="sub">bge-m3 · 512 tokens / overlap 128</p>
+          <div class="chunk"><b>chunk #1</b> · บัญชีเงินเดือนพนักงาน 2569 — “อัตราเงินเดือนแรกบรรจุระดับปฏิบัติการ…”</div>
+          <div class="chunk"><b>chunk #2</b> · คู่มือปฏิบัติงาน HR — “ขั้นตอนการลาและการอนุมัติ…”</div>
+          <div class="chunk"><b>chunk #3</b> · กรอบอัตรากำลัง — “โครงสร้างตำแหน่งและเพดานเงินเดือน…”</div>
+        </div>
+      </section>
+
+      <!-- POLICY TAB -->
+      <section class="panel" data-panel="policy">
+        <div class="card pol">
+          <div class="polrow"><div class="lbl"><b>กฎการแบ่ง chunk</b><small>token-based splitter</small></div><input class="stub-input" value="512 / 128"></div>
+          <div class="polrow"><div class="lbl"><b>Retention (วันเก็บ)</b><small>ลบอัตโนมัติเมื่อครบกำหนด</small></div><input class="stub-input" value="3650"></div>
+          <div class="polrow"><div class="lbl"><b>อนุญาตนำเข้าจากอินเทอร์เน็ต</b><small>collection นี้รับ external source</small></div><div class="toggle off"></div></div>
+          <div class="polrow"><div class="lbl"><b>เอกสารลับ → Local Model เท่านั้น</b><small>ห้ามส่งออก Public model</small></div><div class="toggle"></div></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const TIERS=[{k:0,name:"ปกปิด",c:"#64748B"},{k:1,name:"ลับ",c:"#B45309"},{k:2,name:"ลับมาก",c:"#C2410C"},{k:3,name:"ลับที่สุด",c:"#A21824"}];
+const POS=[
+  {k:1,name:"เจ้าหน้าที่",grp:"Officer",clr:0},
+  {k:2,name:"ผู้จัดการ / หัวหน้างาน",grp:"Officer",clr:1},
+  {k:3,name:"ผู้อำนวยการกอง",grp:"Executive",clr:2},
+  {k:4,name:"ผู้บริหารระดับสูง",grp:"Executive",clr:3},
+];
+const FEAT_BY_GRP={Officer:["View","Chat","Edit"],Executive:["View","Chat","Edit","Connector"]};
+
+// docs in THIS collection (domain = HR)
+let DOCS=[
+  {name:"คู่มือปฏิบัติงาน HR",type:"PDF",tier:0},
+  {name:"ประกาศวันหยุด 2569",type:"DOCX",tier:0},
+  {name:"บัญชีเงินเดือนพนักงาน 2569",type:"XLSX",tier:1},
+  {name:"กรอบอัตรากำลัง / โครงสร้างเงินเดือน",type:"PDF",tier:1},
+  {name:"ผลสอบวินัย / คำสั่งลงโทษ",type:"PDF",tier:2},
+];
+
+// simulator users — has-HR-domain depends on unit/group
+const USERS=[
+  {label:"นาย A · จนท. HR",pos:1,hrDomain:true},
+  {label:"นาง B · ผจก. HR",pos:2,hrDomain:true},
+  {label:"นาย C · ผอ. HR",pos:3,hrDomain:true},
+  {label:"จนท. กองการเงิน",pos:1,hrDomain:false},
+  {label:"ผู้ว่าการ",pos:4,hrDomain:true},
+];
+let sel=1; // index into USERS (นาง B default = shows the aha)
+
+const $=s=>document.querySelector(s);
+const tierBadge=t=>`<span class="tierpick"><span class="tierdot" style="background:${TIERS[t].c}"></span>${TIERS[t].name}</span>`;
+
+function renderDocs(){
+  $("#docTable").innerHTML=DOCS.map((d,i)=>`<tr>
+    <td><div class="docname">${d.name}</div><div class="doctype">${d.type}</div></td>
+    <td class="doctype">${d.type}</td>
+    <td><span class="tierpick"><span class="tierdot" style="background:${TIERS[d.tier].c}"></span>
+      <select data-doc="${i}">${TIERS.map(t=>`<option value="${t.k}" ${t.k===d.tier?'selected':''}>${t.name}</option>`).join("")}</select></span></td>
+    <td><span class="pill ready">พร้อมใช้</span></td></tr>`).join("");
+}
+
+function renderMatrix(){
+  $("#matrix").innerHTML=POS.map(p=>{
+    const feats=FEAT_BY_GRP[p.grp];
+    const fc=f=>feats.includes(f)?'<span class="yes">✓</span>':'<span class="no">—</span>';
+    const T=TIERS[p.clr];
+    return `<tr><td>${p.name}</td>
+      <td><span class="clr" style="background:${T.c}1A;color:${T.c}"><span class="tierdot" style="background:${T.c}"></span>${T.name}</span></td>
+      <td>${fc("View")}</td><td>${fc("Chat")}</td><td>${fc("Edit")}</td><td>${fc("Connector")}</td></tr>`;
+  }).join("");
+}
+
+function renderSim(){
+  $("#who").innerHTML=USERS.map((u,i)=>`<button class="chip ${i===sel?'on':''}" data-u="${i}">${u.label}</button>`).join("");
+  const u=USERS[sel], p=POS.find(x=>x.k===u.pos);
+  $("#whoinfo").innerHTML=`ตำแหน่ง: <b>${p.name}</b><span class="gt">clearance: ${TIERS[p.clr].name}</span>
+     · สิทธิ์ Domain HR: <b>${u.hrDomain?'มี':'ไม่มี'}</b>${u.hrDomain?'<span class="gt">จากกอง/กลุ่ม</span>':'<span class="gt" style="color:var(--deny)">คนละกอง</span>'}`;
+
+  const rows=DOCS.map(d=>{
+    const domOk=u.hrDomain, clrOk=p.clr>=d.tier, allow=domOk&&clrOk;
+    return `<div class="srow ${allow?'allow':'deny'}">
+      <span class="tierdot" style="background:${TIERS[d.tier].c}"></span>
+      <span class="nm">${d.name}<div class="tg">HR · ${TIERS[d.tier].name}</div></span>
+      <span class="conds"><span class="cond ${domOk?'ok':'bad'}">${domOk?'✓':'✕'} domain</span>
+        <span class="cond ${clrOk?'ok':'bad'}">${clrOk?'✓':'✕'} ชั้น</span></span>
+      <span class="vd ${allow?'allow':'deny'}">${allow?'เห็น':'ไม่เห็น'}</span></div>`;
+  }).join("");
+  $("#simRows").innerHTML=rows;
+
+  // AI answer: query about เงินเดือน + กรอบอัตรา (tier ลับ)
+  const cites=DOCS.filter(d=>(d.name.includes("เงินเดือน")||d.name.includes("กรอบอัตรา")) && u.hrDomain && p.clr>=d.tier);
+  $("#aiAnswer").innerHTML = cites.length
+    ? `สรุปจากเอกสารที่คุณมีสิทธิ์: …<div style="margin-top:6px">อ้างอิง: ${cites.map(c=>`<span class="src">${c.name}</span>`).join("")}</div>`
+    : `AI ตอบได้เฉพาะข้อมูลที่คุณมีสิทธิ์ — ตอนนี้ <b>ไม่พบเอกสารที่คุณเข้าถึงได้</b> สำหรับคำถามนี้ (เอกสารลับถูกซ่อน ไม่ถูกอ้างอิง).`;
+  const maxT=Math.max(0,...cites.map(c=>c.tier));
+  $("#aiRoute").innerHTML = cites.length
+    ? `Routing: ชั้นสูงสุดที่ใช้ = <b>${TIERS[maxT].name}</b> → ${maxT>=1?'บังคับ <b>Local Model</b> (ห้ามออก Public)':'ใช้ Public ได้'}.`
+    : `ไม่มีเอกสารถูกดึง → ไม่มีข้อมูลส่งออก.`;
+}
+
+// tabs
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll(".panel").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");
+  document.querySelector(`.panel[data-panel="${b.dataset.tab}"]`).classList.add("on");
+}));
+// doc tier change
+$("#docTable").addEventListener("change",e=>{
+  const s=e.target.closest("[data-doc]"); if(!s)return;
+  DOCS[+s.dataset.doc].tier=+s.value; renderDocs(); renderSim();
+});
+// user pick
+$("#who").addEventListener("click",e=>{
+  const b=e.target.closest("[data-u]"); if(!b)return; sel=+b.dataset.u; renderSim();
+});
+
+renderDocs(); renderMatrix(); renderSim();
+</script>
+</body>
+</html>
