@@ -3,7 +3,7 @@
 เอกสารแนวทาง + PoC ระบบสิทธิ์ สำหรับทีมออกแบบ DB / UI-UX
 
 ## 🔗 ดู PoC ผ่านเว็บ
-- **PoC ระบบสิทธิ์ (interactive):** _(GitHub Pages — จะขึ้นหลัง deploy)_ `https://<org>.github.io/<repo>/`
+- **PoC ระบบสิทธิ์ (interactive):** https://maholan.github.io/aihub-poc-permission/
 - **Artifact สรุปแนวทาง (นำเสนอ):** https://claude.ai/code/artifact/056f103a-0bad-4123-a8be-47c5ecb8ff24
 
 ## 📄 เอกสาร (อ่านตามลำดับ)
@@ -14,6 +14,7 @@
 | [FEATURES.md](FEATURES.md) | ฟีเจอร์ทั้งหมด (23 หมวด) + tag priority/phase |
 | [ROADMAP.md](ROADMAP.md) | แผน P1/P2/P3 + coverage |
 | [PERMISSIONS.md](PERMISSIONS.md) | **โมเดลสิทธิ์ ABAC** (2 แกน, tree, exception, config surface) |
+| [SCHEMA.md](SCHEMA.md) | **Draft DB schema สำหรับ DE** (ERD + DDL + access logic + Qdrant payload) |
 | [PRICING.md](PRICING.md) | credit model + ตัวอย่างคำนวณ |
 | [PITCH.md](PITCH.md) | สรุป 1 หน้า |
 
