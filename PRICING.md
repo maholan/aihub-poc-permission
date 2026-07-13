@@ -4,7 +4,7 @@
 
 โมเดลคิดเงิน: token → credit ผ่าน **อัตราคูณต่อ model** (แยก input/output). ตอบ TOR 3.5.6 (คำนวณต้นทุนแยก in/out) + 3.6 (เครดิตกลาง ≤ 500,000 บาท/ปี).
 
-> ราคา provider (ด้านล่าง) cached มิ.ย. 2026 — **ผันผวน, ต้อง config ได้** ไม่ hardcode. Admin อัพเดตเมื่อ provider เปลี่ยนราคา/FX.
+> ราคา provider (ด้านล่าง) ดึงจากหน้า official **13 ก.ค. 2026** (Anthropic models overview / OpenAI pricing / Gemini API pricing) — **ผันผวน, ต้อง config ได้** ไม่ hardcode. Admin อัพเดตเมื่อ provider เปลี่ยนราคา/FX.
 
 ---
 
@@ -13,18 +13,23 @@
 | Provider | Model | Input $/1M | Output $/1M | หมายเหตุ |
 |---|---|---|---|---|
 | **Anthropic** | Claude Fable 5 | 10.00 | 50.00 | top model |
-| | Claude Opus 4.8 / 4.7 / 4.6 | 5.00 | 25.00 | |
-| | Claude Sonnet 4.6 | 3.00 | 15.00 | |
+| | Claude Opus 4.8 (4.7/4.6 legacy ราคาเดียวกัน) | 5.00 | 25.00 | |
+| | **Claude Sonnet 5** 🆕 | 3.00 | 15.00 | **intro 2.00/10.00 ถึง 31 ส.ค. 2026** |
+| | Claude Sonnet 4.6 (legacy) | 3.00 | 15.00 | |
 | | Claude Haiku 4.5 | 1.00 | 5.00 | |
-| **OpenAI** | GPT-5.5 | 5.00 | 30.00 | flagship |
-| | GPT-5.4 | 2.50 | 15.00 | |
-| | GPT-5 | 1.25 | 10.00 | |
-| **Google** | Gemini 3.1 Pro (≤200K) | 2.00 | 12.00 | >200K: 4 / 18 |
-| | Gemini 3 Flash | 0.50 | 3.00 | |
-| | Gemini 3.1 Flash-Lite | 0.25 | 1.50 | ถูกสุด |
+| **OpenAI** | GPT-5.5 | 5.00 | 30.00 | flagship · cached in 0.50 |
+| | GPT-5.4 | 2.50 | 15.00 | cached in 0.25 |
+| | **GPT-5.4-mini** 🆕 | 0.75 | 4.50 | |
+| | **GPT-5.4-nano** 🆕 | 0.20 | 1.25 | |
+| **Google** | Gemini 3.1 Pro (≤200K) | 2.00 | 12.00 | >200K: 4.00 / 18.00 |
+| | **Gemini 3.5 Flash** 🆕 | 1.50 | 9.00 | แทน 3 Flash (แพงขึ้น 3×) |
+| | Gemini 3.1 Flash-Lite | 0.25 | 1.50 | |
+| | Gemini 2.5 Flash / Flash-Lite | 0.30 / 0.10 | 2.50 / 0.40 | รุ่นเก่า ยังเปิดขาย — ถูกสุดในตลาด |
 | **Local** | self-hosted LLM | — | — | ไม่มีต้นทุน token, admin ตั้ง nominal rate (ดู §5) |
 
-ส่วนลดที่ทุกค่ายมี (optional รองรับทีหลัง): **Batch −50%**, **Cached input ~−90%**.
+> เปลี่ยนจากรอบก่อน (มิ.ย. 2026): **GPT-5 ($1.25/$10) หลุดจากตาราง official** · **Gemini 3 Flash ($0.50/$3) หายไป** — ใครอ้างอิง 2 ตัวนี้ใน routing ต้องแก้.
+
+ส่วนลด official: **Batch −50%** (ทุกค่าย) · **Cached input** OpenAI −90%, Gemini ~−80%(+ค่า storage), Claude cache-read ~0.1×.
 
 ---
 
@@ -61,15 +66,20 @@ credit_total = credit_in + credit_out
 |---|--:|--:|
 | Claude Fable 5 | 429 | 2,145 |
 | Claude Opus 4.8 | 215 | 1,073 |
-| Claude Sonnet 4.6 | 129 | 644 |
+| Claude Sonnet 5 | 129 | 644 |
+| — Sonnet 5 intro (ถึง 31 ส.ค. 69) | 86 | 429 |
+| Claude Sonnet 4.6 (legacy) | 129 | 644 |
 | Claude Haiku 4.5 | 43 | 215 |
 | GPT-5.5 | 215 | 1,287 |
 | GPT-5.4 | 107 | 644 |
-| GPT-5 | 54 | 429 |
+| GPT-5.4-mini | 32 | 193 |
+| GPT-5.4-nano | 9 | 54 |
 | Gemini 3.1 Pro (≤200K) | 86 | 515 |
 | Gemini 3.1 Pro (>200K) | 172 | 773 |
-| Gemini 3 Flash | 21 | 129 |
+| Gemini 3.5 Flash | 64 | 386 |
 | Gemini 3.1 Flash-Lite | 11 | 64 |
+| Gemini 2.5 Flash | 13 | 107 |
+| Gemini 2.5 Flash-Lite | 4 | 17 |
 | Local LLM | *admin-set* | *admin-set* |
 
 **ตัวอย่าง:** ถาม Opus, 2,000 tokens in + 800 out
@@ -119,19 +129,23 @@ out =   500/1M × 64 = 0.032
 ```
 ถูกกว่า Sonnet ~10× (ใช้ GPU องค์กรเอง) + ข้อมูลไม่ออกนอก.
 
-### คำถามเดียวกัน ต่าง model = ต่างกัน ~38× (input 4,700 / output 500)
+### คำถามเดียวกัน ต่าง model = ต่างกัน ~100× (input 4,700 / output 500)
 | Model | credit/query | เทียบ |
 |---|--:|--:|
-| Gemini Flash-Lite | 0.08 | 1× (ถูกสุด) |
-| Gemini 3 Flash | 0.16 | 2× |
-| Local (nominal) | 0.09 | ~1× |
-| Claude Haiku 4.5 | 0.31 | 4× |
-| Claude Sonnet 4.6 | 0.93 | 12× |
-| Claude Opus 4.8 | 1.55 | 19× |
-| GPT-5.5 | 1.65 | 21× |
-| Claude Fable 5 | 3.09 | **38×** |
+| Gemini 2.5 Flash-Lite | 0.03 | 1× (ถูกสุด) |
+| GPT-5.4-nano | 0.07 | 2× |
+| Gemini 3.1 Flash-Lite | 0.08 | 3× |
+| Local (nominal) | 0.09 | 3× |
+| GPT-5.4-mini | 0.25 | 8× |
+| Claude Haiku 4.5 | 0.31 | 10× |
+| Gemini 3.5 Flash | 0.50 | 17× |
+| Sonnet 5 (intro ถึง ส.ค. 69) | 0.62 | 21× |
+| Claude Sonnet 5 / 4.6 | 0.93 | 31× |
+| Claude Opus 4.8 | 1.55 | 52× |
+| GPT-5.5 | 1.65 | 55× |
+| Claude Fable 5 | 3.09 | **~100×** |
 
-→ ตอกย้ำ **Routing Policy** = ตัวคุมต้นทุน: คำถามง่ายส่ง Flash-Lite, ยากจริงค่อย Opus/Fable.
+→ ตอกย้ำ **Routing Policy** = ตัวคุมต้นทุน: คำถามง่ายส่ง nano/Flash-Lite/Local, ยากจริงค่อย Opus/Fable.
 
 ### งบ 500,000 credit/ปี ใช้ได้แค่ไหน
 | สมมติใช้ล้วน | credit/query | query/ปี | /เดือน |
@@ -154,13 +168,15 @@ out =   500/1M × 64 = 0.032
 | Fable 5 | 3,861,000 | 7.7× 🔴 |
 | GPT-5.5 | 2,147,000 | 4.3× 🔴 |
 | Opus 4.8 | 1,933,000 | 3.9× 🔴 |
-| Sonnet 4.6 | 1,160,000 | 2.3× 🔴 (ต้นทุนดิบไม่รวม markup ก็ ~891k — เกิน cap ตั้งแต่ทุน) |
-| GPT-5 | 645,000 | 1.3× 🔴 |
+| Sonnet 5 / 4.6 | 1,160,000 | 2.3× 🔴 (ต้นทุนดิบไม่รวม markup ก็ ~891k — เกิน cap ตั้งแต่ทุน; intro Sonnet 5 = 772k ก็ยังเกิน) |
+| Gemini 3.5 Flash | 643,500 | 1.3× 🔴 |
 | Haiku 4.5 | 387,000 | ✅ |
-| Gemini Flash / Flash-Lite | 213,000 / 108,000 | ✅ |
+| GPT-5.4-mini | 321,750 | ✅ |
+| Gemini 3.1 Flash-Lite | 107,250 | ✅ |
 | Local (nominal 13/64) | 116,000 | ✅ |
+| Gemini 2.5 Flash-Lite | 34,320 | ✅ ถูกสุด |
 
-**บทเรียน:** volume ระดับนี้ ตัวชี้ขาดคือ **routing ไม่ใช่ราคา** (ต่าง 36× ตาม model).
+**บทเรียน:** volume ระดับนี้ ตัวชี้ขาดคือ **routing ไม่ใช่ราคา** (ต่าง ~100× ตาม model).
 
 ทางออก:
 1. **Routing mix** — 60% Local + 30% Haiku + 10% Sonnet ≈ **~302,000 บาท/ปี** ✅ (จุดขาย on-prem: volume หนักให้ GPU องค์กรรับ)
