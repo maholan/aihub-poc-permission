@@ -145,6 +145,28 @@ out =   500/1M × 64 = 0.032
 
 ---
 
+## 4.6 Scenario ลูกค้า volume ใหญ่ — 4,000 MTok in + 1,000 MTok out /ปี
+
+(≈ ~1 ล้าน query/ปี — องค์กรใหญ่ใช้จริงจัง)
+
+| ถ้าใช้ล้วน | บาท/ปี | vs cap 500k |
+|---|--:|:--|
+| Fable 5 | 3,861,000 | 7.7× 🔴 |
+| GPT-5.5 | 2,147,000 | 4.3× 🔴 |
+| Opus 4.8 | 1,933,000 | 3.9× 🔴 |
+| Sonnet 4.6 | 1,160,000 | 2.3× 🔴 (ต้นทุนดิบไม่รวม markup ก็ ~891k — เกิน cap ตั้งแต่ทุน) |
+| GPT-5 | 645,000 | 1.3× 🔴 |
+| Haiku 4.5 | 387,000 | ✅ |
+| Gemini Flash / Flash-Lite | 213,000 / 108,000 | ✅ |
+| Local (nominal 13/64) | 116,000 | ✅ |
+
+**บทเรียน:** volume ระดับนี้ ตัวชี้ขาดคือ **routing ไม่ใช่ราคา** (ต่าง 36× ตาม model).
+
+ทางออก:
+1. **Routing mix** — 60% Local + 30% Haiku + 10% Sonnet ≈ **~302,000 บาท/ปี** ✅ (จุดขาย on-prem: volume หนักให้ GPU องค์กรรับ)
+2. **Cached input −90% + Batch −50%** — RAG cache hit สูง ลด input cost แรง → ควรขยับเข้า P1/P2 ถ้ามีลูกค้า volume จริง
+3. **Enterprise committed-volume tier** — เกิน scale ของ cap 500k (เลข TOR กปน.) → เหมาปี/ลด markup แลก commit. Margin อ้างอิงที่ Sonnet เต็ม volume ≈ 269k/ปี (ก่อนลด)
+
 ## 5. Local model (on-prem)
 
 ไม่มีต้นทุน token จริง (hardware = sunk cost) แต่ต้อง **ตั้ง nominal rate** เพื่อ:
